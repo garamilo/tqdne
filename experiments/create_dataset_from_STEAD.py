@@ -14,7 +14,13 @@ from obspy import UTCDateTime
 from obspy.clients.fdsn.client import Client
 from obspy.geodetics.base import gps2dist_azimuth
 
-np.random.seed(42)
+#np.random.seed(42)
+
+FDSN_SERVERS = ["IRIS", "ISC", "NCEDC", "NOA", "RESIF", "SCEDC", "USGS",
+                "AusPass", "BGR", "BGS", "CATAC", "EMSC", "ETH",
+                "GEOFON", "GeoNet", "ICGC", "IESDMC", "IGN", "INGV",
+                "IPGP", "KAGSR", "KOERI", "LMU", "NIEP", "NRCAN", "ODC",
+                "RASPISHAKE", "UIB-NORSAR"]
 
 
 def make_stream(dataset):
@@ -86,7 +92,7 @@ def calculate_azimuthal_gap(hypocenter, station_coords):
     # Compute azimuths from the hypocenter to each station.
     azimuths = []
     for st_lat, st_lon in station_coords:
-        azimuth = gps2dist_azimuth(hypo_lat, hypo_lon, st_lat, st_lon)
+        azimuth = gps2dist_azimuth(hypo_lat, hypo_lon, st_lat, st_lon, a=6378137.0, f=0.0033528106647474805)
         azimuths.append(azimuth[1])
 
     if len(azimuths) < 2:
@@ -132,12 +138,12 @@ def create_h5_file(file_path, df, dtfl):
     time_arrival_list = []
     trace_start_time_list = []
     vs30_list = []
+    mtpi_list = []      # will hold int of topographic classes for each recording station
     waveform_list = []  # will hold arrays of shape (n_samples, 3) for each event
     azimuthal_gap = []
     indices_valid_waveforms = []
 
     # ObsPy FDSN client for removing response
-    client = Client("IRIS")
     iter = 0
     for i, row in df.iterrows():
         iter += 1
@@ -148,26 +154,33 @@ def create_h5_file(file_path, df, dtfl):
             print(f"Warning: Dataset {trace_name} not found in the HDF5 file. Skipping...")
             continue
 
-        try:
-            inventory = client.get_stations(
-                network=dataset.attrs["network_code"],
-                station=dataset.attrs["receiver_code"],
-                starttime=UTCDateTime(dataset.attrs["trace_start_time"]),
-                endtime=UTCDateTime(dataset.attrs["trace_start_time"]) + 60,
-                loc="*",
-                channel="*",
-                level="response",
-            )
-        except Exception as e:
-            print(f"Error retrieving station metadata for {trace_name}: {e}")
-            # Skip this event if station metadata is not available
-            continue
-
         st = make_stream(dataset)
-        try:
-            st.remove_response(inventory=inventory, output="ACC", plot=False)
-        except Exception as e:
-            print(f"Error removing instrument response for {trace_name}: {e}")
+        inventory = None
+        for server in FDSN_SERVERS:
+            try:
+                client = Client(server)
+                inventory = client.get_stations(
+                    network=dataset.attrs["network_code"],
+                    station=dataset.attrs["receiver_code"],
+                    starttime=UTCDateTime(dataset.attrs["trace_start_time"]),
+                    endtime=UTCDateTime(dataset.attrs["trace_start_time"]) + 60,
+                    loc="*",
+                    channel="*",
+                    level="response")
+                print(f"Found instrument response for {trace_name} at {server}")
+                break
+            except Exception as e:
+                print(f"{server} did not return response for {trace_name}: {e}")
+                continue
+        
+        if inventory:
+            try:
+                st.remove_response(inventory=inventory, output="ACC", plot=False)
+            except Exception as e:
+                print(f"Error removing instrument response for {trace_name}: {e}")
+                continue
+        else:
+            print(f"No matching instrument response found for {trace_name}")
             continue
 
         # Trim around the P arrival (5 seconds before, up to 60 seconds total)
@@ -209,8 +222,8 @@ def create_h5_file(file_path, df, dtfl):
         time_sample_list.append(row["p_arrival_sample"])
         time_arrival_list.append(row["p_travel_sec"])
         trace_start_time_list.append(row["trace_start_time"])
-        # vs30 could be real data or random for demonstration
-        vs30_list.append(np.random.randint(400, 1501))
+        vs30_list.append(row["vs30"])
+        mtpi_list.append(int(row["mtpi"]))
 
         # azimuthal gap calculation
         stations = np.vstack((row["receiver_latitude"], row["receiver_longitude"])).T
@@ -237,6 +250,7 @@ def create_h5_file(file_path, df, dtfl):
     time_arrival_arr = np.array(time_arrival_list)
     trace_start_time_arr = np.array(trace_start_time_list).astype("S")
     vs30_arr = np.array(vs30_list)
+    mtpi_arr = np.array(mtpi_list)
     azimuthal_gap_arr = np.array(azimuthal_gap)
     indices_valid_waveforms_arr = np.array(indices_valid_waveforms)
 
@@ -272,6 +286,7 @@ def create_h5_file(file_path, df, dtfl):
         h5f.create_dataset("time_arrival", data=time_arrival_arr)
         h5f.create_dataset("trace_start_time", data=trace_start_time_arr)
         h5f.create_dataset("vs30", data=vs30_arr)
+        h5f.create_dataset("mtpi", data=mtpi_arr)
         h5f.create_dataset("waveforms", data=waveforms_arr)
         h5f.create_dataset("azimuthal_gap", data=azimuthal_gap_arr)
         h5f.create_dataset("indices_valid_waveforms", data=indices_valid_waveforms_arr)
@@ -301,7 +316,7 @@ def main():
     df = df[
         (df.trace_category == "earthquake_local")
         & (df.source_distance_km <= 200)
-        & (df.source_magnitude > 4.5)
+        & (df.source_magnitude >= 4.0)
     ]
     print(f"Total events selected: {len(df)}")
 
