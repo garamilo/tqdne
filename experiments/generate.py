@@ -22,6 +22,7 @@ def generate(
     hypocentral_distance,
     magnitude,
     vs30,
+    mtpi,
     hypocentre_depth,
     azimuthal_gap,
     num_samples,
@@ -40,6 +41,7 @@ def generate(
     ]
     dataset_magnitudes = dataset.file["magnitude"][:][dataset.sorted_indices()]
     dataset_vs30s = dataset.file["vs30"][:][dataset.sorted_indices()]
+    dataset_mtpis = dataset.file["mtpi"][:][dataset.sorted_indices()]
     dataset_hypocentre_depths = dataset.file["hypocentre_depth"][:][dataset.sorted_indices()]
     dataset_azimuthal_gap = dataset.file["azimuthal_gap"][:][dataset.sorted_indices()]
 
@@ -50,6 +52,7 @@ def generate(
         hypocentral_distances = (df.hypocentral_distance).to_list()
         magnitudes = df.magnitude.to_list()
         vs30s = df.vs30.to_list()
+        mtpis = df.mtpi.to_list()
         hypocentre_depths = df.hypocentre_depth.to_list()
         azimuthal_gaps = df.azimuthal_gap.to_list()
     elif np.all(
@@ -59,8 +62,9 @@ def generate(
                 hypocentral_distance,
                 magnitude,
                 vs30,
+                mtpi,
                 hypocentre_depth,
-                magnitude,
+                azimuthal_gap,
                 num_samples,
             ]
         ]
@@ -69,6 +73,7 @@ def generate(
         hypocentral_distances = [hypocentral_distance] * num_samples
         magnitudes = [magnitude] * num_samples
         vs30s = [vs30] * num_samples
+        mtpis = [mtpi] * num_samples
         hypocentre_depths = [hypocentre_depth] * num_samples
         azimuthal_gaps = [azimuthal_gap] * num_samples
     else:
@@ -76,6 +81,7 @@ def generate(
         hypocentral_distances = dataset_hypocentral_distances
         magnitudes = dataset_magnitudes
         vs30s = dataset_vs30s
+        mtpis = dataset_mtpis
         hypocentre_depths = dataset_hypocentre_depths
         azimuthal_gaps = dataset_azimuthal_gap
 
@@ -87,6 +93,7 @@ def generate(
         "magnitude"
     ][:].std()
     vs30s_norm = (np.array(vs30s) - dataset.file["vs30"][:].mean()) / dataset.file["vs30"][:].std()
+    mtpis_norm = (np.array(mtpis) - dataset.file["mtpi"][:].mean()) / dataset.file["mtpi"][:].std()
     hypocentre_depths_norm = (
         np.array(hypocentre_depths) - dataset.file["hypocentre_depth"][:].mean()
     ) / dataset.file["hypocentre_depth"][:].std()
@@ -99,6 +106,7 @@ def generate(
             hypocentral_distances_norm,
             magnitudes_norm,
             vs30s_norm,
+            mtpis_norm,
             hypocentre_depths_norm,
             azimuthal_gaps_norm,
         ],
@@ -125,6 +133,7 @@ def generate(
         f.create_dataset("hypocentral_distance", data=np.array(hypocentral_distances))
         f.create_dataset("magnitude", data=np.array(magnitudes))
         f.create_dataset("vs30s", data=np.array(vs30s))
+        f.create_dataset("mtpi", data=np.array(mtpis))
         f.create_dataset("hypocentre_depth", data=np.array(hypocentre_depths))
         f.create_dataset("azimuthal_gap", data=np.array(azimuthal_gaps))
 
@@ -168,6 +177,12 @@ are saved in an HDF5 file with the given name in the outputs directory.
         type=float,
         default=None,
         help="average shear-wave velocity in the top 30 m of the site in m/s",
+    )
+    parser.add_argument(
+        "--mtpi",
+        type=int,
+        default=None,
+        help="multi-scale topographic positive index (topographic ruggedness) at the station",
     )
     parser.add_argument(
         "--hypocentre_depth", type=float, default=None, help="hypocentre depth in km"
@@ -219,6 +234,7 @@ are saved in an HDF5 file with the given name in the outputs directory.
         args.hypocentral_distance,
         args.magnitude,
         args.vs30,
+        args.mtpi,
         args.hypocentre_depth,
         args.azimuthal_gap,
         args.num_samples,

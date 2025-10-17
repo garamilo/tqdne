@@ -21,6 +21,14 @@ def run(args):
     config = SpectrogramClassificationConfig(args.workdir)
     config.representation.disable_multiprocessing()
 
+    # conditional for cpu-gpu setup
+    if args.num_workers == 0:
+        pf = None
+        persist_workers = False
+    else:
+        pf = 2
+        persist_workers = True
+
     train_dataset = ClassificationDataset(
         config.datapath,
         config.representation,
@@ -44,16 +52,16 @@ def run(args):
         num_workers=args.num_workers,
         shuffle=True,
         drop_last=True,
-        prefetch_factor=2,
-        persistent_workers=True,
+        prefetch_factor=pf,
+        persistent_workers=persist_workers,
     )
     val_loader = DataLoader(
         val_dataset,
         batch_size=args.batchsize,
         num_workers=args.num_workers,
-        prefetch_factor=2,
+        prefetch_factor=pf,
         drop_last=False,
-        persistent_workers=True,
+        persistent_workers=persist_workers,
     )
 
     # loss and metrics
