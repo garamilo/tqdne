@@ -55,10 +55,7 @@ class LatentSpectrogramConfig(SpectrogramConfig):
 class SpectrogramClassificationConfig(SpectrogramConfig):
     """Configuration class for the spectrogram representation."""
 
-    """Note: temporary placement of mag_bins min @ 4.01 due to current tough dataset mag > 4.0
-        To avoid assertion errors in data loading."""
-
-    mag_bins = [4.01, 4.75, 5, 5.5, 6.5, 7.5, 9.1]
+    mag_bins = [4.0, 4.75, 5, 5.5, 6.5, 7.5, 9.1]
     dist_bins = [0, 75, 100, 125, 150, 175, 200]
 
 
