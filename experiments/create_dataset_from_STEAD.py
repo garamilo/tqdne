@@ -4,6 +4,9 @@ Description:
     This script reads a CSV file and an HDF5 file containing seismic trace information. It writes relevant information into a new HDF5 file
     for tqdne structure.
 
+Note:
+    Revised structure based on necessity to add sources of instrument response from FDSN servers, aside previously added IRIS.
+    Latest revision date: 23/10/2025, gir. Change request numbers 25-001 to 25-003.
 """
 
 import h5py
@@ -16,11 +19,10 @@ from obspy.geodetics.base import gps2dist_azimuth
 
 #np.random.seed(42)
 
-FDSN_SERVERS = ["IRIS", "ISC", "NCEDC", "NOA", "RESIF", "SCEDC", "USGS",
-                "AusPass", "BGR", "BGS", "CATAC", "EMSC", "ETH",
-                "GEOFON", "GeoNet", "ICGC", "IESDMC", "IGN", "INGV",
-                "IPGP", "KAGSR", "KOERI", "LMU", "NIEP", "NRCAN", "ODC",
-                "RASPISHAKE", "UIB-NORSAR"]
+FDSN_SERVERS = ["IRIS", "NOA", "EIDA", "RESIF",
+                "AusPass", "BGR", "EMSC", "ETH",
+                "GEOFON", "GeoNet", "ICGC", "IESDMC", "INGV",
+                "IPGP", "KOERI", "LMU", "NIEP","ODC", "UIB-NORSAR"]
 
 
 def make_stream(dataset):
@@ -299,8 +301,8 @@ def main():
     Main function to demonstrate reading a CSV, filtering a DataFrame,
     and creating an HDF5 file.
     """
-    file_name = "workdir/stead/merge.hdf5"
-    csv_file = "workdir/stead/merge.csv"
+    file_name = "../../../../../data/wf_stead/chunks_appendVs30/merged.hdf5"
+    csv_file = "../../../../../data/wf_stead/chunks_appendVs30/merged.csv"
 
     # Load the CSV file into a DataFrame
     df = pd.read_csv(csv_file)
