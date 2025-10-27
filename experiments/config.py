@@ -19,7 +19,7 @@ class Config:
         "vs30",
         "hypocentre_depth",
         "azimuthal_gap",
-        "mtpi"
+        "mtpi",
     )
     representation = representation.Identity()
 
@@ -55,8 +55,8 @@ class LatentSpectrogramConfig(SpectrogramConfig):
 class SpectrogramClassificationConfig(SpectrogramConfig):
     """Configuration class for the spectrogram representation."""
 
-    mag_bins = [4, 4.5, 5, 5.25, 6, 9.1]
-    dist_bins = [0, 75, 100, 125, 150, 200]
+    mag_bins = [4.0, 4.75, 5, 5.5, 6.5, 7.5, 9.1]
+    dist_bins = [0, 75, 100, 125, 150, 175, 200]
 
 
 @dataclass
