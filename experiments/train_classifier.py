@@ -15,8 +15,14 @@ from tqdne.dataset import ClassificationDataset
 from tqdne.training import get_pl_trainer
 from tqdne.utils import get_device, get_last_checkpoint
 
-
 def run(args):
+    if args.num_workers == 0:
+        pf = None
+        persist_workers = False
+    else:
+        pf = 2
+        persist_workers = True
+
     name = "Classifier-LogSpectrogram"
     config = SpectrogramClassificationConfig(args.workdir)
     config.representation.disable_multiprocessing()
@@ -44,16 +50,16 @@ def run(args):
         num_workers=args.num_workers,
         shuffle=True,
         drop_last=True,
-        prefetch_factor=2,
-        persistent_workers=True,
+        prefetch_factor=pf,
+        persistent_workers=persist_workers,
     )
     val_loader = DataLoader(
         val_dataset,
         batch_size=args.batchsize,
         num_workers=args.num_workers,
-        prefetch_factor=2,
+        prefetch_factor=pf,
         drop_last=False,
-        persistent_workers=True,
+        persistent_workers=persist_workers,
     )
 
     # loss and metrics

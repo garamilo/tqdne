@@ -3,6 +3,11 @@ from pathlib import Path
 
 from tqdne import representation
 
+"""
+changelog / notes:
+20260304    -   [gar]: added "aspect", "elevation", "mtpi" to features_keys (at start line 21) 
+"""
+
 
 @dataclass
 class Config:
@@ -19,6 +24,9 @@ class Config:
         "vs30",
         "hypocentre_depth",
         "azimuthal_gap",
+        "aspect",
+        "elevation",
+        "mtpi",
     )
     representation = representation.Identity()
 
@@ -39,7 +47,7 @@ class SpectrogramConfig(Config):
     hop_size: int = 32
     representation = representation.LogSpectrogram(stft_channels=stft_channels, hop_size=hop_size)
     # we need to increase this from earlier version, since now data is bigger
-    t: int = 4064
+    t: int = 4096
 
 
 @dataclass
@@ -54,8 +62,8 @@ class LatentSpectrogramConfig(SpectrogramConfig):
 class SpectrogramClassificationConfig(SpectrogramConfig):
     """Configuration class for the spectrogram representation."""
 
-    mag_bins = [4, 4.75, 5, 5.5, 6.5, 7.5, 9.1]
-    dist_bins = [0, 75, 100, 125, 150, 175, 200]
+    mag_bins = [4, 4.25, 4.5, 4.75, 6, 9.1]
+    dist_bins = [0, 90, 120, 140, 160, 180, 200]
 
 
 @dataclass
