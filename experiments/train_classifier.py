@@ -83,7 +83,7 @@ def run(args):
         "dims": 2,
         "conv_kernel_size": 3,
         "num_heads": 4,
-        "dropout": 0.1,
+        "dropout": 0.3,
         "flash_attention": False,
     }
 
