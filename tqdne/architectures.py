@@ -45,7 +45,7 @@ def get_2d_autoencoder_configs(config):
         "num_res_blocks": 2,
         "dims": 2,
         "conv_kernel_size": 3,
-        "dropout": 0.1,
+        "dropout": 0.3,
     }
     encoder_config = base_config | {
         "in_channels": config.channels,
