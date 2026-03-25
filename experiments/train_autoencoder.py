@@ -33,7 +33,7 @@ def run(args):
     ]
 
     optimizer_params = {
-        "learning_rate": 0.000025,
+        "learning_rate": 0.0000125,
         "max_steps": 300 * len(train_loader),
         "eta_min": 0.0,
     }
