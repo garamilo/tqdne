@@ -11,55 +11,22 @@ from torchmetrics.classification import (
 )
 
 from tqdne.classifier import LithningClassifier
-from tqdne.dataset import ClassificationDataset
+from tqdne.dataloader import get_train_and_val_loader
 from tqdne.training import get_pl_trainer
 from tqdne.utils import get_device, get_last_checkpoint
 
 def run(args):
-    if args.num_workers == 0:
-        pf = None
-        persist_workers = False
-    else:
-        pf = 2
-        persist_workers = True
-
     name = "Classifier-LogSpectrogram"
     config = SpectrogramClassificationConfig(args.workdir)
     config.representation.disable_multiprocessing()
 
-    train_dataset = ClassificationDataset(
-        config.datapath,
-        config.representation,
-        mag_bins=config.mag_bins,
-        dist_bins=config.dist_bins,
-        cut=config.t,
-        split="train_validation",
-    )
-
-    val_dataset = ClassificationDataset(
-        config.datapath,
-        config.representation,
-        mag_bins=config.mag_bins,
-        dist_bins=config.dist_bins,
-        cut=config.t,
-        split="test",
-    )
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=args.batchsize,
-        num_workers=args.num_workers,
-        shuffle=True,
-        drop_last=True,
-        prefetch_factor=pf,
-        persistent_workers=persist_workers,
-    )
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=args.batchsize,
-        num_workers=args.num_workers,
-        prefetch_factor=pf,
-        drop_last=False,
-        persistent_workers=persist_workers,
+    train_loader, val_loader = get_train_and_val_loader(
+        config,
+        args.num_workers,
+        args.batchsize,
+        cond=True,
+        train_split="train_validation",
+        val_split="test"
     )
 
     # loss and metrics

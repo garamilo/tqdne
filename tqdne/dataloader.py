@@ -5,12 +5,12 @@ from torch.utils.data import DataLoader, WeightedRandomSampler
 from tqdne.dataset import Dataset
 
 
-def get_train_and_val_loader(config, num_workers, batchsize, cond=False):
+def get_train_and_val_loader(config, num_workers, batchsize, cond=False, train_split="train", val_split="validation"):
     train_dataset = Dataset(
-        config.datapath, config.representation, cut=config.t, cond=cond, split="train"
+        config.datapath, config.representation, cut=config.t, cond=cond, split=train_split
     )
     val_dataset = Dataset(
-        config.datapath, config.representation, cut=config.t, cond=cond, split="validation"
+        config.datapath, config.representation, cut=config.t, cond=cond, split=val_split
     )
 
     # === revision: adding weighted random sampler on cases where mag-dist population is really skewed to one side
@@ -34,6 +34,9 @@ def get_train_and_val_loader(config, num_workers, batchsize, cond=False):
         sampler = WeightedRandomSampler(weights=sample_weights, num_samples=len(sample_weights), replacement=True)   
         shuffle = False
     
+    pf = 1 if num_workers > 0 else None
+    persist = True if num_workers > 0 else False
+    
     train_loader = DataLoader(
         train_dataset,
         batch_size=batchsize,
@@ -41,7 +44,8 @@ def get_train_and_val_loader(config, num_workers, batchsize, cond=False):
         shuffle=shuffle,
         num_workers=num_workers,
         drop_last=True,
-        persistent_workers=True
+        prefetch_factor=pf,
+        persistent_workers=persist
     )
 
     val_loader = DataLoader(
@@ -50,8 +54,8 @@ def get_train_and_val_loader(config, num_workers, batchsize, cond=False):
         shuffle=False,
         num_workers=num_workers,
         drop_last=False,
-        prefetch_factor=1,
-        persistent_workers=True,
+        prefetch_factor=pf,
+        persistent_workers=persist,
         pin_memory=True
     )
 
