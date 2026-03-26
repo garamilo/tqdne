@@ -48,6 +48,10 @@ class SpectrogramConfig(Config):
     representation = representation.LogSpectrogram(stft_channels=stft_channels, hop_size=hop_size)
     # we need to increase this from earlier version, since now data is bigger
     t: int = 4064
+    # mag-dist bins moved from class SpectrogramClassificationConfig(SpectrogramConfig)
+        # original mag_bins = [4., 4.25, 4.5, 4.75, 6, 9.1]
+    mag_bins = [4., 4.2, 4.3, 4.4, 4.6, 4.9, 9.1]
+    dist_bins = [0, 90, 120, 140, 160, 180, 200]
 
 
 @dataclass
@@ -61,10 +65,7 @@ class LatentSpectrogramConfig(SpectrogramConfig):
 @dataclass
 class SpectrogramClassificationConfig(SpectrogramConfig):
     """Configuration class for the spectrogram representation."""
-
-    #mag_bins = [4., 4.25, 4.5, 4.75, 6, 9.1]
-    mag_bins = [4., 4.2, 4.3, 4.4, 4.6, 4.9, 9.1]
-    dist_bins = [0, 90, 120, 140, 160, 180, 200]
+    pass
 
 
 @dataclass

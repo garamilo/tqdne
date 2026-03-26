@@ -63,13 +63,13 @@ def run(args):
     )
 
     # loss and metrics
-    class_weights = train_dataset.get_class_weights()
-    loss = torch.nn.CrossEntropyLoss(weight=class_weights)
+    num_classes = (len(config.mag_bins) - 1) * (len(config.dist_bins) - 1)
+    loss = torch.nn.CrossEntropyLoss()
     metrics = [
-        MulticlassAccuracy(len(class_weights)),
-        MulticlassRecall(len(class_weights)),
-        MulticlassPrecision(len(class_weights)),
-        MulticlassF1Score(len(class_weights)),
+        MulticlassAccuracy(num_classes),
+        MulticlassRecall(num_classes),
+        MulticlassPrecision(num_classes),
+        MulticlassF1Score(num_classes),
     ]
 
     # Parameters
@@ -104,7 +104,7 @@ def run(args):
     logging.info("Build lightning module...")
     classifier = LithningClassifier(
         encoder_config=encoder_config,
-        num_classes=len(class_weights),
+        num_classes=num_classes,
         loss=loss,
         metrics=metrics,
         optimizer_params=optimizer_params,
