@@ -24,6 +24,9 @@ def generate(
     vs30,
     hypocentre_depth,
     azimuthal_gap,
+    aspect,
+    elevation,
+    mtpi,
     num_samples,
     csv,
     outfile,
@@ -43,15 +46,25 @@ def generate(
     dataset_hypocentre_depths = dataset.file["hypocentre_depth"][:][dataset.sorted_indices()]
     dataset_azimuthal_gap = dataset.file["azimuthal_gap"][:][dataset.sorted_indices()]
 
+    dataset_aspects = dataset.file["aspect"][:][dataset.sorted_indices()]
+    dataset_elevations = dataset.file["elevations"][:][dataset.sorted_indices()]
+    dataset_mtpis = dataset.file["mtpi"][:][dataset.sorted_indices()]
+
     if csv:
         print("using csv data")
         df = pd.read_csv(csv)
         df = df.loc[df.index.repeat(df.num_samples)]
+
         hypocentral_distances = (df.hypocentral_distance).to_list()
         magnitudes = df.magnitude.to_list()
         vs30s = df.vs30.to_list()
         hypocentre_depths = df.hypocentre_depth.to_list()
         azimuthal_gaps = df.azimuthal_gap.to_list()
+
+        aspects = df.aspect.to_list()
+        elevations = df.elevation.to_list()
+        mtpis = df.mtpis.to_list()
+
     elif np.all(
         [
             c is not None
@@ -60,7 +73,10 @@ def generate(
                 magnitude,
                 vs30,
                 hypocentre_depth,
-                magnitude,
+                azimuthal_gap,
+                aspect,
+                elevation,
+                mtpi,
                 num_samples,
             ]
         ]
@@ -71,6 +87,9 @@ def generate(
         vs30s = [vs30] * num_samples
         hypocentre_depths = [hypocentre_depth] * num_samples
         azimuthal_gaps = [azimuthal_gap] * num_samples
+        aspects = [aspect] * num_samples
+        elevations = [elevation] * num_samples
+        mtpis = [mtpi] * num_samples
     else:
         print("using test data")
         hypocentral_distances = dataset_hypocentral_distances
@@ -78,6 +97,9 @@ def generate(
         vs30s = dataset_vs30s
         hypocentre_depths = dataset_hypocentre_depths
         azimuthal_gaps = dataset_azimuthal_gap
+        aspects = dataset_aspects
+        elevations = dataset_elevations
+        mtpis = dataset_mtpis
 
     # normalize features
     hypocentral_distances_norm = (
@@ -93,6 +115,13 @@ def generate(
     azimuthal_gaps_norm = (
         np.array(azimuthal_gaps) - dataset.file["azimuthal_gap"][:].mean()
     ) / dataset.file["azimuthal_gap"][:].std()
+    aspects_norm = ((np.array(aspects) - dataset.file["aspect"][:].mean()) 
+                    / dataset.file["aspect"][:].std())
+    elevations_norm = ((np.array(elevations) 
+                        - dataset.file["elevation"][:].mean()) 
+                    / dataset.file["elevation"][:].std())
+    mtpis_norm = ((np.array(mtpis) - dataset.file["mtpi"][:].mean()) 
+                    / dataset.file["mtpi"][:].std())
 
     cond = np.stack(
         [
@@ -101,6 +130,9 @@ def generate(
             vs30s_norm,
             hypocentre_depths_norm,
             azimuthal_gaps_norm,
+            aspects_norm,
+            elevations_norm,
+            mtpis_norm
         ],
         axis=1,
     )
@@ -127,6 +159,10 @@ def generate(
         f.create_dataset("vs30s", data=np.array(vs30s))
         f.create_dataset("hypocentre_depth", data=np.array(hypocentre_depths))
         f.create_dataset("azimuthal_gap", data=np.array(azimuthal_gaps))
+        f.create_dataset("aspect", data=np.array(aspects))
+        f.create_dataset("elevation", data=np.array(elevations))
+        f.create_dataset("mtpi", data=np.array(mtpis))
+
 
         waveforms = f.create_dataset("waveforms", (len(cond), 3, config.t))
 
@@ -176,6 +212,16 @@ are saved in an HDF5 file with the given name in the outputs directory.
         "--azimuthal_gap", type=float, default=None, help="azimuthal gap in degrees"
     )
     parser.add_argument(
+        "--aspect", type=float, default=None, help="slope azimuth of the feature surface"
+    )
+    parser.add_argument(
+        "--elevation", type=int, default=None, help="feature elevation, in meters"
+    )
+    parser.add_argument(
+        "--mtpi", type=int, default=None, help="Multi-scale Topographic Position Index" \
+        "value for the location"
+    )
+    parser.add_argument(
         "--num_samples", type=int, default=None, help="number of samples to generate"
     )
     parser.add_argument("--csv", type=str, default=None, help="csv file with args")
@@ -221,6 +267,9 @@ are saved in an HDF5 file with the given name in the outputs directory.
         args.vs30,
         args.hypocentre_depth,
         args.azimuthal_gap,
+        args.aspect,
+        args.elevation,
+        args.mtpi,
         args.num_samples,
         args.csv,
         args.outfile,

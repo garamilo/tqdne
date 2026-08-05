@@ -19,6 +19,9 @@ class Config:
         "vs30",
         "hypocentre_depth",
         "azimuthal_gap",
+        "aspect",
+        "elevation",
+        "mtpi"
     )
     representation = representation.Identity()
 
