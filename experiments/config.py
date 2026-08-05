@@ -43,6 +43,10 @@ class SpectrogramConfig(Config):
     representation = representation.LogSpectrogram(stft_channels=stft_channels, hop_size=hop_size)
     # we need to increase this from earlier version, since now data is bigger
     t: int = 4064
+    # we moved the magnitude and distance bins here from SpectrogramClassificationConfig
+    #  func so we can toggle on/off the weighted random sampler feature
+    mag_bins = [4.3, 4.5, 4.7, 5.0, 5.5, 6.0, 7.6]
+    dist_bins = [0, 75, 100, 125, 150, 175, 200]  
 
 
 @dataclass
@@ -57,8 +61,7 @@ class LatentSpectrogramConfig(SpectrogramConfig):
 class SpectrogramClassificationConfig(SpectrogramConfig):
     """Configuration class for the spectrogram representation."""
 
-    mag_bins = [4, 4.75, 5, 5.5, 6.5, 7.5, 9.1]
-    dist_bins = [0, 75, 100, 125, 150, 175, 200]
+    pass
 
 
 @dataclass
