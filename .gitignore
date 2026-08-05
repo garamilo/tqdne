@@ -17,5 +17,7 @@ outputs/
 .env
 .idea/
 
+tough_scratch
+
 requirements.lock
 requirements-dev.lock
