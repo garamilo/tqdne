@@ -26,8 +26,13 @@ def run(args):
         plot.AmplitudeSpectralDensity(fs=config.fs, channel=c) for c in range(3)
     ]
 
+    # let's make it that lr is dynamic given batchsize
+    lr_src = 0.0001
+    batchszie_src = 256
+    lr = lr_src * (args.batchsize / batchszie_src)
+
     optimizer_params = {
-        "learning_rate": 0.0001,
+        "learning_rate": lr,
         "max_steps": 200 * len(train_loader),
         "eta_min": 0.0,
     }

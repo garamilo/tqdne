@@ -81,8 +81,13 @@ def run(args):
         "flash_attention": False,
     }
 
+    # let's make it that lr is dynamic given batchsize
+    lr_src = 0.0001
+    batchszie_src = 128
+    lr = lr_src * (args.batchsize / batchszie_src)
+
     optimizer_params = {
-        "learning_rate": 0.0001,
+        "learning_rate": lr,
         "max_steps": 110 * len(train_loader),
         "eta_min": 0.0,
     }
