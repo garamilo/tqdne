@@ -6,7 +6,7 @@ def get_1d_autoencoder_configs(config):
         "num_res_blocks": 2,
         "dims": 1,
         "conv_kernel_size": 5,
-        "dropout": 0.1,
+        "dropout": 0.3,
     }
     encoder_config = base_config | {
         "in_channels": config.channels,
@@ -31,7 +31,7 @@ def get_1d_unet_config(config, in_channels, out_channels):
         "attention_resolutions": (8,),
         "num_res_blocks": 2,
         "num_heads": 4,
-        "dropout": 0.1,
+        "dropout": 0.3,
         "flash_attention": False,  # flash attention not tested (potentially faster)
     }
     return unet_config
@@ -45,7 +45,7 @@ def get_2d_autoencoder_configs(config):
         "num_res_blocks": 2,
         "dims": 2,
         "conv_kernel_size": 3,
-        "dropout": 0.1,
+        "dropout": 0.3,
     }
     encoder_config = base_config | {
         "in_channels": config.channels,
@@ -72,7 +72,7 @@ def get_2d_unet_config(
         "attention_resolutions": (8,),
         "num_res_blocks": 2,
         "num_heads": 4,
-        "dropout": 0.1,
+        "dropout": 0.3,
         "flash_attention": False,
         "use_causal_mask": use_causal_mask,
     }
