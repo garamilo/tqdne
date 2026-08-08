@@ -59,7 +59,7 @@ def get_pl_trainer(
                 monitor="validation/loss",
                 auto_insert_metric_name=False,
                 mode="min",
-                save_top_k=3,
+                save_top_k=-1,
                 save_last=True,
             )
         )
