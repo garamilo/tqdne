@@ -145,8 +145,11 @@ def create_h5_file(file_path, df, dtfl):
     aspect_list = []
     elevation_list = []
 
-    # ObsPy FDSN client for removing response
-    client = Client("EARTHSCOPE")
+    FDSN_SERVERS = [
+        "EarthScope", "NOA", "INGV", "GEOFON", "GeoNet"
+    ]
+
+    # Obspy FDSN client for removing response
     iter = 0
     for i, row in df.iterrows():
         iter += 1
@@ -154,29 +157,39 @@ def create_h5_file(file_path, df, dtfl):
         dataset = dtfl.get(f"data/{trace_name}")
 
         if dataset is None:
-            print(f"Warning: Dataset {trace_name} not found in the HDF5 file. Skipping...")
+            print(f"Warning: Dataset {trace_name} not found in HDF5 file. Skipping...")
             continue
 
-        try:
-            inventory = client.get_stations(
-                network=dataset.attrs["network_code"],
-                station=dataset.attrs["receiver_code"],
-                starttime=UTCDateTime(dataset.attrs["trace_start_time"]),
-                endtime=UTCDateTime(dataset.attrs["trace_start_time"]) + 60,
-                loc="*",
-                channel="*",
-                level="response",
-            )
-        except Exception as e:
-            print(f"Error retrieving station metadata for {trace_name}: {e}")
-            # Skip this event if station metadata is not available
-            continue
+        inventory = None
+
+        for server in FDSN_SERVERS:
+            try:
+                client = Client(server)
+                inventory = client.get_stations(
+                    network=dataset.attrs["network_code"],
+                    station=dataset.attrs["receiver_code"],
+                    starttime=UTCDateTime(dataset.attrs["trace_start_time"]),
+                    endtime=UTCDateTime(dataset.attrs["trace_start_time"]) + 60,
+                    loc="*",
+                    channel="*",
+                    level="response"
+                )
+                print(f"Found instrument response for {trace_name}.")
+                break
+            except Exception as e:
+                print(f"{server} did not return response for {trace_name}: {e}")
+                continue
 
         st = make_stream(dataset)
-        try:
-            st.remove_response(inventory=inventory, output="ACC", plot=False)
-        except Exception as e:
-            print(f"Error removing instrument response for {trace_name}: {e}")
+
+        if inventory:
+            try:
+                st.remove_response(inventory=inventory, output="ACC", plot=False)
+            except Exception as e:
+                print(f"Error removing instrument response for {trace_name}: {e}")
+                continue
+        else:
+            print(f"No matching instrument response found for {trace_name}.")
             continue
 
         # Trim around the P arrival (5 seconds before, up to 60 seconds total)
