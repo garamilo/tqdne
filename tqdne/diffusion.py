@@ -116,7 +116,8 @@ class LightningDDMP(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(
-            self.net.parameters(), lr=self.optimizer_params["learning_rate"]
+            self.net.parameters(), lr=self.optimizer_params["learning_rate"],
+            weight_decay=1e-3
         )
         lr_scheduler = get_cosine_schedule_with_warmup(
             optimizer=optimizer,

@@ -91,7 +91,7 @@ class LightningAutoencoder(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = th.optim.AdamW(
-            self.parameters(), lr=self.optimizer_params["learning_rate"], weight_decay=1e-4
+            self.parameters(), lr=self.optimizer_params["learning_rate"], weight_decay=1e-3
         )
         lr_scheduler = th.optim.lr_scheduler.CosineAnnealingLR(
             optimizer,
