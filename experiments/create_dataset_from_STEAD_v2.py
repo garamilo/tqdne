@@ -146,7 +146,7 @@ def create_h5_file(file_path, df, dtfl):
     elevation_list = []
 
     FDSN_SERVERS = [
-        "IRIS", "NOA", "INGV", "GEOFON", "GeoNet"
+        "IRIS", "NOA", "INGV", "RESIF", "GEOFON", "ORFEUS", "GEONET"
     ]
 
     # Obspy FDSN client for removing response
