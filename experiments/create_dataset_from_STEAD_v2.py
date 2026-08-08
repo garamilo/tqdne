@@ -339,8 +339,7 @@ def main():
     # (3) magnitude >= 4.0
     df = df[
         (df.source_distance_km <= 200)
-        & (df.source_magnitude >= 4.3)
-        & (df.source_magnitude <= 7.5)
+        & (df.source_magnitude >= 4.0)
     ]
     print(f"Total events selected: {len(df)}")
 
