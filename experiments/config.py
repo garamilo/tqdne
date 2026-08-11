@@ -45,7 +45,7 @@ class SpectrogramConfig(Config):
     t: int = 4064
     # we moved the magnitude and distance bins here from SpectrogramClassificationConfig
     #  func so we can toggle on/off the weighted random sampler feature
-    mag_bins = [4.3, 4.5, 4.7, 5.0, 5.5, 6.0, 7.6]
+    mag_bins = [4, 4.2, 4.5, 5, 5.5, 6.0, 7.5]
     dist_bins = [0, 75, 100, 125, 150, 175, 200]  
 
 
