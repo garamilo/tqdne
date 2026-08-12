@@ -57,7 +57,7 @@ def run(args):
     checkpoint = (
         config.outputdir
         / f"Autoencoder-{spectr.shape[1] // 4}x{spectr.shape[2] // 4}x4-LogSpectrogram"
-        / "last.ckpt"
+        / "best.ckpt"
     )
     logging.info(f"Loading autoencoder: {checkpoint}")
     autoencoder = LightningAutoencoder.load_from_checkpoint(checkpoint)

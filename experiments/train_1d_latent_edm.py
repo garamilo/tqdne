@@ -47,7 +47,7 @@ def run(args):
     }
 
     logging.info("Loading autoencoder...")
-    checkpoint = config.outputdir / "Autoencoder-1024x16-MovingAvg" / "last.ckpt"
+    checkpoint = config.outputdir / "Autoencoder-1024x16-MovingAvg" / "best.ckpt"
     autoencoder = LightningAutoencoder.load_from_checkpoint(checkpoint)
 
     logging.info("Build lightning module...")
