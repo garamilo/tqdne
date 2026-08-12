@@ -64,10 +64,9 @@ def predict(
     classifier_embedding_shape = classifier_embedding.shape[1:]
     classifier_pred_shape = classifier.output_layer(classifier_embedding).shape[1:]
 
-    rank = os.environ["LOCAL_RANK"]
-    outfile = re.match(".*/(.*)/.+.ckpt", edm_checkpoint).group(1)
+    rank = os.environ.get("LOCAL_RANK", 0)
     Path(workdir, "evaluation").mkdir(parents=True, exist_ok=True)
-    outfile = Path(workdir, "evaluation", outfile + f"-split_{split}-rank_{rank}.h5")
+    outfile = Path(workdir, "evaluation", f"outputs-split_{split}-rank_{rank}.h5")
 
     with File(outfile, "w") as f:
         for key in config.features_keys:
