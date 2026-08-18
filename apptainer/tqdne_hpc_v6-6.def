@@ -1,0 +1,94 @@
+BootStrap: docker
+From: ubuntu:24.04
+
+%labels
+    Author TOUGH_PROJECT
+    Version v6.6(local)
+    Description TQDNE setup on Ubuntu 22.04
+
+%environment
+	export PATH="/miniconda3/envs/tqdne/bin:/miniconda3/bin:$PATH"
+    
+    # Ensure conda functions are available in the container
+    . /miniconda3/etc/profile.d/conda.sh
+    
+    # activate tqdne environment
+    conda activate tqdne
+
+%files
+    # Copy repo with data to inside container
+    /home/giramilo/git/tqdne /tqdne
+
+%post
+    echo "Updating Linux system dependencies..."
+    # Update base system dependencies
+    apt-get update && apt-get upgrade -y
+
+    # Install Unix dependencies
+    apt-get install -y \
+        build-essential \
+		git \
+        wget \
+        bzip2 \
+        ca-certificates
+    echo "Done."
+
+    # Download and install miniconda silently
+    echo "Installing miniconda to system..."  
+    mkdir -p /opt/miniconda3
+    cd /opt/miniconda3
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda_setup.sh
+    mkdir -p /miniconda3
+    bash /opt/miniconda3/miniconda_setup.sh -b -u -p /miniconda3
+
+    # Clean cache
+    apt-get clean
+	
+    # Remove installation file
+    cd /
+    rm -r /opt/miniconda3
+    echo "Done."
+
+    # Initialize conda in the terminal -> default conda profile address
+    # persistent initialization of conda shell
+    . /miniconda3/etc/profile.d/conda.sh
+
+	# Accept TOS
+	/miniconda3/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+	/miniconda3/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+    
+	#Update base environment
+	conda update --name base conda -y
+
+    # Create tqdne environment
+    echo "Creating the tqdne environment..."
+    conda create -n tqdne python=3.11 -y
+    conda activate tqdne
+    
+    # Install conda and pipenv dependencies
+    /miniconda3/bin/conda install main::setuptools==80.10.2 -n tqdne -y
+    /miniconda3/bin/conda install main::numpy==1.25.2 -n tqdne -y
+    /miniconda3/bin/conda install main::einops==0.8.1 -n tqdne -y
+    /miniconda3/bin/conda install main::h5py==3.13.0 -n tqdne -y
+    /miniconda3/bin/conda install main::librosa==0.11.0 -n tqdne -y
+    /miniconda3/bin/conda install main::jupyterlab==4.2.5 -n tqdne -y
+    /miniconda3/bin/conda install main::scikit-image==0.25.2 -n tqdne -y
+    /miniconda3/bin/conda install main::scikit-learn==1.6.1 -n tqdne -y
+    /miniconda3/bin/conda install main::seaborn==0.13.2 -n tqdne -y
+    /miniconda3/bin/conda install main::tqdm==4.68.2 -n tqdne -y
+    pip install pytorch-lightning==2.5.1
+    pip install obspy==1.4.1
+    pip install seisbench==0.8.2
+    pip install torch==2.10.0 torchvision==0.25.0 torchaudio==2.10.0 --index-url https://download.pytorch.org/whl/cu128
+    pip install torchmetrics==1.7.0
+    pip install wandb==0.25.0
+    pip install -r /tqdne/experiments/envs/oq-engine_requirements-py311-linux64.txt
+	
+	# Install tqdne module
+	cd /tqdne
+    pip install .
+    echo "Done."
+
+%runscript
+	echo "TQDNE container ready."
+    exec echo "$@"
