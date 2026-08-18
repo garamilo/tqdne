@@ -1,0 +1,5 @@
+workdir/
+workdir/*
+
+train*.sh
+slurm*
