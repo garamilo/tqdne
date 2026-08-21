@@ -3,7 +3,7 @@ From: ubuntu:24.04
 
 %labels
     Author TOUGH_PROJECT
-    Version v6.6(local) -> For CUDA SDK 12.9 and below
+    Version v6.7(local) -> For CUDA SDK 13.0 and up
     Description TQDNE setup on Ubuntu 22.04
 
 %environment
@@ -79,7 +79,7 @@ From: ubuntu:24.04
     pip install pytorch-lightning==2.5.1
     pip install obspy==1.4.1
     pip install seisbench==0.8.2
-    pip install torch==2.10.0 torchvision==0.25.0 torchaudio==2.10.0 --index-url https://download.pytorch.org/whl/cu128
+    pip install torch==2.11.0 torchvision==0.26.0 torchaudio==2.11.0 --index-url https://download.pytorch.org/whl/cu130
     pip install torchmetrics==1.7.0
     pip install wandb==0.25.0
     pip install -r /tqdne/experiments/envs/oq-engine_requirements-py311-linux64.txt
