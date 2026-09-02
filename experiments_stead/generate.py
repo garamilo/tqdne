@@ -47,7 +47,7 @@ def generate(
     dataset_azimuthal_gap = dataset.file["azimuthal_gap"][:][dataset.sorted_indices()]
 
     dataset_aspects = dataset.file["aspect"][:][dataset.sorted_indices()]
-    dataset_elevations = dataset.file["elevations"][:][dataset.sorted_indices()]
+    dataset_elevations = dataset.file["elevation"][:][dataset.sorted_indices()]
     dataset_mtpis = dataset.file["mtpi"][:][dataset.sorted_indices()]
 
     if csv:
@@ -63,7 +63,7 @@ def generate(
 
         aspects = df.aspect.to_list()
         elevations = df.elevation.to_list()
-        mtpis = df.mtpis.to_list()
+        mtpis = df.mtpi.to_list()
 
     elif np.all(
         [
@@ -156,7 +156,7 @@ def generate(
     with h5py.File(outfile, "w") as f:
         f.create_dataset("hypocentral_distance", data=np.array(hypocentral_distances))
         f.create_dataset("magnitude", data=np.array(magnitudes))
-        f.create_dataset("vs30s", data=np.array(vs30s))
+        f.create_dataset("vs30", data=np.array(vs30s))
         f.create_dataset("hypocentre_depth", data=np.array(hypocentre_depths))
         f.create_dataset("azimuthal_gap", data=np.array(azimuthal_gaps))
         f.create_dataset("aspect", data=np.array(aspects))
