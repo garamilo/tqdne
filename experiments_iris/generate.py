@@ -64,6 +64,7 @@ def generate(
         aspects = df.aspect.to_list()
         elevations = df.elevation.to_list()
         mtpis = df.mtpi.to_list()
+        guids = df.guid.to_list()
 
     elif np.all(
         [
@@ -162,6 +163,8 @@ def generate(
         f.create_dataset("aspect", data=np.array(aspects))
         f.create_dataset("elevation", data=np.array(elevations))
         f.create_dataset("mtpi", data=np.array(mtpis))
+        if csv:
+            f.create_dataset("guid", data=np.array(guids, dtype="S"))
 
 
         waveforms = f.create_dataset("waveforms", (len(cond), 3, config.t))
