@@ -22,3 +22,4 @@ tough_scratch
 requirements.lock
 requirements-dev.lock
 *.sif
+/experiments_iris/workdir
