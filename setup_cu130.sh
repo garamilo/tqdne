@@ -21,7 +21,7 @@ echo "=== [pip 6-8/10] installing torch, torchvision, torchaudio (cu130) ==="
 conda run -n tqdne pip install torch==2.11.0 torchvision==0.26.0 torchaudio==2.11.0 --index-url https://download.pytorch.org/whl/cu130
 
 echo "=== [pip 9/10] installing oq-engine requirements ==="
-conda run -n tqdne pip install -r $PWD/experiments_stead/envs/oq-engine_requirements-py311-linux64.txt
+conda run -n tqdne pip install -r $PWD/experiments/envs/oq-engine_requirements-py311-linux64.txt
 
 echo "=== [pip 10/8] installing tqdne local package (editable install) ==="
 conda run -n tqdne pip install -e $PWD
